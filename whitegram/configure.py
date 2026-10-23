@@ -63,4 +63,9 @@ versions = json.loads(versions_path.read_text())
 
 install_primary_icon(root)
 
+sys.path.insert(0, str(Path(__file__).parent))
+from custom_server_patch import apply_custom_server_patches
+apply_custom_server_patches(root)
+
 print(f"Configured {app_name} build identity {build_bundle_id} on Telegram {versions['app']}")
+

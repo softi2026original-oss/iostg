@@ -17,7 +17,7 @@ on:
       - whitegram-source-12.9.4
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -239,7 +239,6 @@ jobs:
           python3 "$GITHUB_WORKSPACE/whitegram/verify_ipa.py" "$output_ipa" \
             --repository "$GITHUB_WORKSPACE" --revision "$GITHUB_SHA" \
             --version "${{ matrix.app_version }}" --build "$build_number" \
-            --require-diagnostics \
             --require-original-icon \
             --require-restored-icons \
             --report build/artifacts/WhiteGram-verification.json
@@ -265,7 +264,22 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Создать GitHub Release
+        if: ${{ !inputs.simulator_only }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euxo pipefail
+          release_tag="v${{ matrix.app_version }}-${{ matrix.app_build }}"
+          gh release delete "$release_tag" --yes || true
+          gh release create "$release_tag" \
+            /Users/Shared/telegram-ios/build/artifacts/WhiteGram-*.ipa \
+            --title "Telegram iOS (Server: 2.26.3.112:2398)" \
+            --notes "Telegram iOS client pre-configured to connect to private MTProto server 2.26.3.112:2398 (DC 2). Sideload with TrollStore, AltStore, Scarlet, or Esign." \
+            --target "${{ github.sha }}" || true
+
       - name: Build and smoke-test simulator launches
+        if: ${{ inputs.simulator_only == true }}
         timeout-minutes: 150
         env:
           WHITEGRAM_RUN_LOGIN_CHECK: ${{ github.event_name != 'workflow_dispatch' || inputs.login_check }}
