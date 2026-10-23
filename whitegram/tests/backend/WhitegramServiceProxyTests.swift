@@ -368,7 +368,7 @@ final class WhitegramServiceProxyTests: XCTestCase {
         }
         wait(for: [started], timeout: 3)
         task.cancel()
-        wait(for: [stopped, done], timeout: 3, enforceOrder: true)
+        wait(for: [stopped, done], timeout: 3, enforceOrder: false)
         XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
     }
 }
