@@ -172,6 +172,10 @@ def patch_backup_address_signals(root: Path):
 
 def apply_custom_server_patches(root_dir: str):
     root = Path(root_dir).resolve()
+    network_file = root / "submodules" / "TelegramCore" / "Sources" / "Network" / "Network.swift"
+    if not network_file.is_file():
+        print(f"[SKIP] TelegramCore sources not present in {root}, skipping server patches.")
+        return
     print(f"Applying custom server patches to {root}...")
     patch_network_swift(root)
     patch_account_swift(root)
