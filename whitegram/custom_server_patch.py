@@ -110,16 +110,24 @@ def patch_datacenter_auth_message_service(root: Path):
         re.DOTALL
     )
 
-    single_line_pem = (
-        r"-----BEGIN RSA PUBLIC KEY-----\n"
-        r"MIIBCgKCAQEAuK1sDwtQy/4XQyb2iRYkADgutpl7CT23RbTyF7Riz3X6w4flpk2B\n"
-        r"yGFDzVgWHZciXevueP7f08F3hGhJWHeMJNPNMcdLia1L1MItYiqPrXU1Rp/MFpjl\n"
-        r"yDOsQUZB62Xidsat67GjGO+UhjiEt4ef0S8h1xSO1iFgg/FWtl3XMsVrBTvaiHkh\n"
-        r"gEf1NhAbgKiPHv4t2f0/PmMDjrMFlQlXet8nd6ASrW6vshlm7fTOfX1/HAIW3eoe\n"
-        r"iZ7zwQgBtC4I9YWq2akA9TlSnC3P0gXnPj/wbiGVTFI+ekaG1koeWtXJKa/Nh0n9\n"
-        r"O3+gwetGkI4LhpluYosOvVgY53SKSd6r3wIDAQAB\n"
-        r"-----END RSA PUBLIC KEY-----"
-    )
+    key_lines = [
+        "-----BEGIN RSA PUBLIC KEY-----",
+        "MIIBCgKCAQEAuK1sDwtQy/4XQyb2iRYkADgutpl7CT23RbTyF7Riz3X6w4flpk2B",
+        "yGFDzVgWHZciXevueP7f08F3hGhJWHeMJNPNMcdLia1L1MItYiqPrXU1Rp/MFpjl",
+        "yDOsQUZB62Xidsat67GjGO+UhjiEt4ef0S8h1xSO1iFgg/FWtl3XMsVrBTvaiHkh",
+        "gEf1NhAbgKiPHv4t2f0/PmMDjrMFlQlXet8nd6ASrW6vshlm7fTOfX1/HAIW3eoe",
+        "iZ7zwQgBtC4I9YWq2akA9TlSnC3P0gXnPj/wbiGVTFI+ekaG1koeWtXJKa/Nh0n9",
+        "O3+gwetGkI4LhpluYosOvVgY53SKSd6r3wIDAQAB",
+        "-----END RSA PUBLIC KEY-----",
+    ]
+
+    lines_objc = []
+    for i, line in enumerate(key_lines):
+        prefix = '@"' if i == 0 else '             "'
+        suffix = '\\n"' if i < len(key_lines) - 1 else '"'
+        lines_objc.append(f"{prefix}{line}{suffix}")
+
+    key_literal = "\n".join(lines_objc)
 
     replacement = (
         "static NSArray<MTDatacenterAuthPublicKey *> *defaultPublicKeys(bool isProduction) {\n"
@@ -127,14 +135,14 @@ def patch_datacenter_auth_message_service(root: Path):
         "    static dispatch_once_t onceToken;\n"
         "    dispatch_once(&onceToken, ^{\n"
         "        customKeys = @[\n"
-        f'            [[MTDatacenterAuthPublicKey alloc] initWithPublicKey:@\"{single_line_pem}\"]\n'
+        f"            [[MTDatacenterAuthPublicKey alloc] initWithPublicKey:{key_literal}]\n"
         "        ];\n"
         "    });\n"
         "    return customKeys;\n"
         "}"
     )
 
-    new_text, count = func_pattern.subn(replacement, text)
+    new_text, count = func_pattern.subn(lambda m: replacement, text)
     if count == 0:
         raise ValueError("Could not find defaultPublicKeys in MTDatacenterAuthMessageService.m")
 
@@ -167,15 +175,22 @@ def patch_backup_address_signals(root: Path):
         raise FileNotFoundError(f"Missing {path}")
     text = path.read_text(encoding="utf-8")
 
-    if "return [MTSignal complete];" in text:
+    if "/* custom: disable backup ips */" in text:
         print(f"[OK] Already patched {path} to return [MTSignal complete]")
         return
 
-    func_pattern = re.compile(
-        r"(\+ \(MTSignal \*[^\)]*\)fetchBackupIps:[^\{]*\{)"
+    pattern = re.compile(
+        r"\+ \(MTSignal \*[^\)]*\)fetchBackupIps:.*?\n\}\n\n@end",
+        re.DOTALL
+    )
+    replacement = (
+        "+ (MTSignal * _Nonnull)fetchBackupIps:(bool)isTestingEnvironment currentContext:(MTContext * _Nonnull)currentContext additionalSource:(MTSignal * _Nullable)additionalSource phoneNumber:(NSString * _Nullable)phoneNumber mainDatacenterId:(NSInteger)mainDatacenterId {\n"
+        "    /* custom: disable backup ips */\n"
+        "    return [MTSignal complete];\n"
+        "}\n\n@end"
     )
 
-    new_text, count = func_pattern.subn(r"\1\n    return [MTSignal complete];", text)
+    new_text, count = pattern.subn(replacement, text)
     if count > 0:
         path.write_text(new_text, encoding="utf-8")
         print(f"[OK] Patched {path} to return [MTSignal complete]")
