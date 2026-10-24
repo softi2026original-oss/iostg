@@ -11,8 +11,8 @@
       "height": 1024,
       "rendition_offset": 12481280,
       "payload_offset": 12481568,
-      "payload_bytes": 256140,
-      "rgba_sha256": "9529b92cb3b7f61df1d200789941c7e039180a53337e536d8bc95b010ed6c7b9",
+      "payload_bytes": 20996,
+      "rgba_sha256": "596284e619b63dae5bf769dcd814b0f6aa1e6344977c8949cb47b1968a4a5035",
       "sha256": "f1520e12ae9f0c1f798b0d1a1fef44072e047d7969cab7d917a6cd1d70058b6c"
     },
     {
@@ -22,8 +22,8 @@
       "height": 1024,
       "rendition_offset": 32748112,
       "payload_offset": 32748400,
-      "payload_bytes": 410659,
-      "rgba_sha256": "27c77cf343789217805e51eefc449e9e38ccf1008fc6a36c69490f05c3c577c3",
+      "payload_bytes": 20996,
+      "rgba_sha256": "596284e619b63dae5bf769dcd814b0f6aa1e6344977c8949cb47b1968a4a5035",
       "sha256": "f1520e12ae9f0c1f798b0d1a1fef44072e047d7969cab7d917a6cd1d70058b6c"
     },
     {
@@ -33,8 +33,8 @@
       "height": 1024,
       "rendition_offset": 53652944,
       "payload_offset": 53653232,
-      "payload_bytes": 344355,
-      "rgba_sha256": "65924414400bc569f19686c7c635b371a48ece6d99c5072eb03f6e776bb68c30",
+      "payload_bytes": 20996,
+      "rgba_sha256": "596284e619b63dae5bf769dcd814b0f6aa1e6344977c8949cb47b1968a4a5035",
       "sha256": "f1520e12ae9f0c1f798b0d1a1fef44072e047d7969cab7d917a6cd1d70058b6c"
     }
   ]
