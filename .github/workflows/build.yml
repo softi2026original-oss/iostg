@@ -233,7 +233,7 @@ jobs:
           print("WhiteGram bundle identifiers verified")
           PY
           cd "$staging_dir"
-          output_ipa="$source_dir/build/artifacts/WhiteGram-${{ matrix.app_version }}-$build_number.ipa"
+          output_ipa="$source_dir/build/artifacts/DellwixGram-${{ matrix.app_version }}-$build_number.ipa"
           zip -qry "$output_ipa" Payload
           cd "$source_dir"
           test -s "$output_ipa"
@@ -242,17 +242,17 @@ jobs:
             --version "${{ matrix.app_version }}" --build "$build_number" \
             --require-original-icon \
             --require-restored-icons \
-            --report build/artifacts/WhiteGram-verification.json
+            --report build/artifacts/DellwixGram-verification.json
           rm -rf "$staging_dir"
 
       - name: Загрузить IPA
         if: ${{ !inputs.simulator_only }}
         uses: actions/upload-artifact@v4
         with:
-          name: WhiteGram-${{ env.APP_VERSION }}-${{ env.BUILD_NUMBER }}-unsigned
+          name: DellwixGram-${{ env.APP_VERSION }}-${{ env.BUILD_NUMBER }}-unsigned
           path: |
-            /Users/Shared/telegram-ios/build/artifacts/WhiteGram-*.ipa
-            /Users/Shared/telegram-ios/build/artifacts/WhiteGram-verification.json
+            /Users/Shared/telegram-ios/build/artifacts/DellwixGram-*.ipa
+            /Users/Shared/telegram-ios/build/artifacts/DellwixGram-verification.json
           if-no-files-found: error
           retention-days: 30
 
@@ -260,7 +260,7 @@ jobs:
         if: ${{ !inputs.simulator_only }}
         uses: actions/upload-artifact@v4
         with:
-          name: WhiteGram-symbols-${{ github.sha }}
+          name: DellwixGram-symbols-${{ github.sha }}
           path: /Users/Shared/telegram-ios/build/artifacts/Telegram.DSYMs.zip
           if-no-files-found: error
           retention-days: 30
@@ -274,9 +274,9 @@ jobs:
           release_tag="v${{ matrix.app_version }}-${{ matrix.app_build }}"
           gh release delete "$release_tag" --yes || true
           gh release create "$release_tag" \
-            /Users/Shared/telegram-ios/build/artifacts/WhiteGram-*.ipa \
-            --title "Telegram iOS (Server: 2.26.3.112:2398)" \
-            --notes "Telegram iOS client pre-configured to connect to private MTProto server 2.26.3.112:2398 (DC 2). Sideload with TrollStore, AltStore, Scarlet, or Esign." \
+            /Users/Shared/telegram-ios/build/artifacts/DellwixGram-*.ipa \
+            --title "Dellwix Gram iOS (Server: 2.26.3.112:2398)" \
+            --notes "Dellwix Gram iOS client pre-configured to connect to private MTProto server 2.26.3.112:2398 (DC 2). Sideload with TrollStore, AltStore, Scarlet, or Esign." \
             --target "${{ github.sha }}" || true
 
       - name: Build and smoke-test simulator launches

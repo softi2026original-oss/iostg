@@ -198,6 +198,32 @@ def patch_backup_address_signals(root: Path):
         print(f"[WARN] fetchBackupIps anchor not found in {path}")
 
 
+def patch_mtproto_layer(root: Path):
+    # 1. Patch Serialization.swift to report layer 229 instead of 230
+    ser_path = root / "submodules" / "TelegramCore" / "Sources" / "State" / "Serialization.swift"
+    if ser_path.is_file():
+        ser_text = ser_path.read_text(encoding="utf-8")
+        if "return 229" not in ser_text:
+            ser_text = ser_text.replace("return 230", "return 229")
+            ser_path.write_text(ser_text, encoding="utf-8")
+            print(f"[OK] Patched {ser_path} to return layer 229")
+        else:
+            print(f"[OK] Already patched {ser_path} to layer 229")
+
+    # 2. Patch MTRequestMessageService.m to invokeWithLayer 229
+    req_path = root / "submodules" / "MtProtoKit" / "Sources" / "MTRequestMessageService.m"
+    if req_path.is_file():
+        req_text = req_path.read_text(encoding="utf-8")
+        target = "[buffer appendInt32:(int32_t)[_serialization currentLayer]];"
+        replacement = "[buffer appendInt32:(int32_t)229];"
+        if target in req_text:
+            req_text = req_text.replace(target, replacement)
+            req_path.write_text(req_text, encoding="utf-8")
+            print(f"[OK] Patched {req_path} to invokeWithLayer 229")
+        elif replacement in req_text:
+            print(f"[OK] Already patched {req_path} to invokeWithLayer 229")
+
+
 def apply_custom_server_patches(root_dir: str):
     root = Path(root_dir).resolve()
     network_file = root / "submodules" / "TelegramCore" / "Sources" / "Network" / "Network.swift"
@@ -210,6 +236,7 @@ def apply_custom_server_patches(root_dir: str):
     patch_datacenter_auth_message_service(root)
     patch_discover_connection_signals(root)
     patch_backup_address_signals(root)
+    patch_mtproto_layer(root)
     print("All custom server patches applied successfully!")
 
 

@@ -57,7 +57,8 @@ for path in sorted(root.rglob("Info.plist")):
 
     updated_plist = replace_prefix(plist)
     if path.name == "Info.plist" and path.parent.name == "Telegram.app":
-        updated_plist["CFBundleDisplayName"] = "WhiteGram"
+        updated_plist["CFBundleDisplayName"] = "Dellwix Gram"
+        updated_plist["CFBundleName"] = "Dellwix Gram"
         if backend_key:
             updated_plist["WhitegramBackendApplicationKey"] = backend_key
         else:

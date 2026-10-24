@@ -16,8 +16,8 @@ DESTINATIONS = (
     "submodules/RMIntro/Sources/platform/ios/Resources",
 )
 LOGO_FILES = {
-    "telegram_sphere@2x.png": "381aba0fa7ff1404da7e4070e1fc9594c5ce655deb43f4888af0c0b01cfc2e82",
-    "telegram_sphere@3x.png": "fcf14937842b38a7af8f50ff5588e5f44758f2f7caf8ad665e6c17101a7080b5",
+    "telegram_sphere@2x.png": "191865a32a04a5a190f2ea86fe0e250f478d8ac113e67459171288f9216f8e0c",
+    "telegram_sphere@3x.png": "ea1f387afbe9838e9315481805ff88294f76598d8a3ab3dab3e9974fd3dc6e26",
     "telegram_plane1@2x.png": "18c656511c8c5afdb1d6fce72f35fc8ca2a34ccf239e92af9b940b810b88d6d4",
 }
 

@@ -9,7 +9,7 @@ from primary_icon import install_primary_icon
 root = Path(sys.argv[1]).resolve()
 build_bundle_id = "ph.telegra.Telegraph"
 url_scheme = "whitegram"
-app_name = "WhiteGram"
+app_name = "Dellwix Gram"
 
 config_path = root / "build-system" / "appstore-configuration.json"
 config = json.loads(config_path.read_text())
