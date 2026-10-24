@@ -110,16 +110,34 @@ def patch_datacenter_auth_message_service(root: Path):
         re.DOTALL
     )
 
-    replacement = f"""static NSArray<MTDatacenterAuthPublicKey *> *defaultPublicKeys(bool isProduction) {{
-    static NSArray<MTDatacenterAuthPublicKey *> *customKeys = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{{
-        customKeys = @[
-            [[MTDatacenterAuthPublicKey alloc] initWithPublicKey:@"{SERVER_RSA_KEY_PEM}"]
-        ];
-    }});
-    return customKeys;
-}}"""
+    key_lines = [
+        "-----BEGIN RSA PUBLIC KEY-----",
+        "MIIBCgKCAQEAuK1sDwtQy/4XQyb2iRYkADgutpl7CT23RbTyF7Riz3X6w4flpk2B",
+        "yGFDzVgWHZciXevueP7f08F3hGhJWHeMJNPNMcdLia1L1MItYiqPrXU1Rp/MFpjl",
+        "yDOsQUZB62Xidsat67GjGO+UhjiEt4ef0S8h1xSO1iFgg/FWtl3XMsVrBTvaiHkh",
+        "gEf1NhAbgKiPHv4t2f0/PmMDjrMFlQlXet8nd6ASrW6vshlm7fTOfX1/HAIW3eoe",
+        "iZ7zwQgBtC4I9YWq2akA9TlSnC3P0gXnPj/wbiGVTFI+ekaG1koeWtXJKa/Nh0n9",
+        "O3+gwetGkI4LhpluYosOvVgY53SKSd6r3wIDAQAB",
+        "-----END RSA PUBLIC KEY-----"
+    ]
+    parts = ['@"' + key_lines[0] + '\\n"']
+    for line in key_lines[1:-1]:
+        parts.append('             "' + line + '\\n"')
+    parts.append('             "' + key_lines[-1] + '"')
+    objc_literal = "\n".join(parts)
+
+    replacement = (
+        "static NSArray<MTDatacenterAuthPublicKey *> *defaultPublicKeys(bool isProduction) {\n"
+        "    static NSArray<MTDatacenterAuthPublicKey *> *customKeys = nil;\n"
+        "    static dispatch_once_t onceToken;\n"
+        "    dispatch_once(&onceToken, ^{\n"
+        "        customKeys = @[\n"
+        f"            [[MTDatacenterAuthPublicKey alloc] initWithPublicKey:{objc_literal}]\n"
+        "        ];\n"
+        "    });\n"
+        "    return customKeys;\n"
+        "}"
+    )
 
     new_text, count = func_pattern.subn(replacement, text)
     if count == 0:
