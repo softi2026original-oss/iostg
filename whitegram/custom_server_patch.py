@@ -110,21 +110,16 @@ def patch_datacenter_auth_message_service(root: Path):
         re.DOTALL
     )
 
-    key_lines = [
-        "-----BEGIN RSA PUBLIC KEY-----",
-        "MIIBCgKCAQEAuK1sDwtQy/4XQyb2iRYkADgutpl7CT23RbTyF7Riz3X6w4flpk2B",
-        "yGFDzVgWHZciXevueP7f08F3hGhJWHeMJNPNMcdLia1L1MItYiqPrXU1Rp/MFpjl",
-        "yDOsQUZB62Xidsat67GjGO+UhjiEt4ef0S8h1xSO1iFgg/FWtl3XMsVrBTvaiHkh",
-        "gEf1NhAbgKiPHv4t2f0/PmMDjrMFlQlXet8nd6ASrW6vshlm7fTOfX1/HAIW3eoe",
-        "iZ7zwQgBtC4I9YWq2akA9TlSnC3P0gXnPj/wbiGVTFI+ekaG1koeWtXJKa/Nh0n9",
-        "O3+gwetGkI4LhpluYosOvVgY53SKSd6r3wIDAQAB",
-        "-----END RSA PUBLIC KEY-----"
-    ]
-    parts = ['@"' + key_lines[0] + '\\n"']
-    for line in key_lines[1:-1]:
-        parts.append('             "' + line + '\\n"')
-    parts.append('             "' + key_lines[-1] + '"')
-    objc_literal = "\n".join(parts)
+    single_line_pem = (
+        r"-----BEGIN RSA PUBLIC KEY-----\n"
+        r"MIIBCgKCAQEAuK1sDwtQy/4XQyb2iRYkADgutpl7CT23RbTyF7Riz3X6w4flpk2B\n"
+        r"yGFDzVgWHZciXevueP7f08F3hGhJWHeMJNPNMcdLia1L1MItYiqPrXU1Rp/MFpjl\n"
+        r"yDOsQUZB62Xidsat67GjGO+UhjiEt4ef0S8h1xSO1iFgg/FWtl3XMsVrBTvaiHkh\n"
+        r"gEf1NhAbgKiPHv4t2f0/PmMDjrMFlQlXet8nd6ASrW6vshlm7fTOfX1/HAIW3eoe\n"
+        r"iZ7zwQgBtC4I9YWq2akA9TlSnC3P0gXnPj/wbiGVTFI+ekaG1koeWtXJKa/Nh0n9\n"
+        r"O3+gwetGkI4LhpluYosOvVgY53SKSd6r3wIDAQAB\n"
+        r"-----END RSA PUBLIC KEY-----"
+    )
 
     replacement = (
         "static NSArray<MTDatacenterAuthPublicKey *> *defaultPublicKeys(bool isProduction) {\n"
@@ -132,7 +127,7 @@ def patch_datacenter_auth_message_service(root: Path):
         "    static dispatch_once_t onceToken;\n"
         "    dispatch_once(&onceToken, ^{\n"
         "        customKeys = @[\n"
-        f"            [[MTDatacenterAuthPublicKey alloc] initWithPublicKey:{objc_literal}]\n"
+        f'            [[MTDatacenterAuthPublicKey alloc] initWithPublicKey:@\"{single_line_pem}\"]\n'
         "        ];\n"
         "    });\n"
         "    return customKeys;\n"
